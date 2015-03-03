@@ -1,0 +1,24 @@
+:css
+  .checkbox input[type="checkbox"]:checked ~ span {
+    text-decoration: line-through;
+  }
+
+%form{ action: '/activities', method: 'post' }
+  .form-group
+    %label{ for: 'activity_activity_name' } New Activity
+    %input.form-control{ type: 'text', id: 'activity_activity_name', name: 'activity[activity_name]' }
+
+  %button.btn.btn-default{ type: "submit" } Create Activity
+
+- activities.each do |activity|
+  %form#new_activity_record{ action: "/activities/#{activity[:id]}/records", method: 'post', data: { remote: '' } }
+    .checkbox
+      %label{ for: "activity_record_record_true_#{activity[:id]}" }
+        %input{ type: 'hidden', id: "activity_record_record_false_#{activity[:id]}", name: 'activity_record[record]', value: 'false' }
+        - if activity[:recorded]
+          %input{ type: 'checkbox', id: "activity_record_record_true_#{activity[:id]}", name: 'activity_record[record]', checked: '', value: 'true' }
+        - else
+          %input{ type: 'checkbox', id: "activity_record_record_true_#{activity[:id]}", name: 'activity_record[record]', value: 'true' }
+        %span= activity[:activity_name]
+
+      %input{ type: 'hidden', name: 'activity_record[record_date]', value: current_date_time.to_s }
