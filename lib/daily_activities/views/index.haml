@@ -4,9 +4,14 @@
   }
 
 %form{ action: '/activities', method: 'post' }
-  .form-group
-    %label{ for: 'activity_activity_name' } New Activity
-    %input.form-control{ type: 'text', id: 'activity_activity_name', name: 'activity[activity_name]' }
+  .form-group{ class: "#{'has-error' if error}"}
+    %label.control-label{ for: 'activity_activity_name' } New Activity
+    %input.form-control{ type: 'text', id: 'activity_activity_name', name: 'activity[activity_name]', value: activity_name }
+
+    - if error
+      %label.control-label
+        %small= error
+
 
   %button.btn.btn-default{ type: "submit" } Create Activity
 
@@ -21,4 +26,4 @@
           %input{ type: 'checkbox', id: "activity_record_record_true_#{activity[:id]}", name: 'activity_record[record]', value: 'true' }
         %span= activity[:activity_name]
 
-      %input{ type: 'hidden', name: 'activity_record[record_date]', value: current_date_time.to_s }
+      %input{ type: 'hidden', name: 'activity_record[record_date]', value: current_date.to_s }

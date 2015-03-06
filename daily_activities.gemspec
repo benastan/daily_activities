@@ -33,4 +33,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "sequel"
   spec.add_dependency "foreman"
   spec.add_dependency "haml"
+  spec.add_dependency "unicorn"
 end

@@ -1,31 +1,37 @@
 require 'sinatra/base'
-require 'pry'
+require 'interactor'
+require 'daily_activities/create_activity'
+require 'daily_activities/create_activity_record'
+require 'daily_activities/load_activities'
 
 module DailyActivities
   class Application < Sinatra::Base
     get '/' do
-      current_date_time = Date.today
-      activity_records = Database.connection[:activity_records].where(record_date: current_date_time.to_s)
-      activities = Database.connection[:activities].all.map do |activity|
-        activity_record = activity_records.find do |activity_record|
-          activity_record[:activity_id] == activity[:id]
-        end
-
-        activity[:recorded] = !!activity_record
-        activity
-      end
-
-      haml :index, locals: { activities: activities, current_date_time: current_date_time }
+      current_date = Date.today
+      load_activities = LoadActivities.call(date: current_date)
+      haml :index, locals: {
+        activity_name: nil,
+        error: nil,
+        activities: load_activities.activities,
+        current_date: current_date
+      }
     end
 
     post '/activities' do
-      Database.connection[:activities].insert(
-        activity_name: params[:activity][:activity_name],
-        created_at: DateTime.now,
-        updated_at: DateTime.now
-      )
-
-      redirect to('/')
+      activity_name = params[:activity][:activity_name]
+      create_activity = CreateActivity.call(activity_name: activity_name)
+      if create_activity.success?
+        redirect to('/')
+      else
+        current_date = Date.today
+        load_activities = LoadActivities.call(date: current_date)
+        haml :index, locals: {
+          activity_name: activity_name,
+          error: create_activity.message,
+          activities: load_activities.activities,
+          current_date: current_date
+        }
+      end
     end
 
     post '/activities/:activity_id/records' do
@@ -34,14 +40,12 @@ module DailyActivities
       record_date = params[:activity_record][:record_date]
 
       if record
-        activity_record_attributes = {
+        CreateActivityRecord.call(
           activity_id: activity_id,
           record_date: record_date,
           created_at: DateTime.now,
           updated_at: DateTime.now
-        }
-
-        Database.connection[:activity_records].insert(activity_record_attributes)
+        )
       else
         dataset = Database.connection[:activity_records].where(
           record_date: record_date,
@@ -61,6 +65,13 @@ module DailyActivities
         status status
         ''
       end
+    end
+
+    configure do
+      enable :logging
+      file = File.new("#{settings.root}/../../log/#{settings.environment}.log", 'a+')
+      file.sync = true
+      use Rack::CommonLogger, file
     end
   end
 end
