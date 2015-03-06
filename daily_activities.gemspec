@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.6"
+  spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"
   spec.add_development_dependency "capybara"
@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "shotgun"
   spec.add_development_dependency "pry"
   spec.add_development_dependency "timecop"
+  spec.add_dependency "interactor"
   spec.add_dependency "sinatra"
   spec.add_dependency "pg"
   spec.add_dependency "sequel"
