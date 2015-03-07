@@ -1,10 +1,14 @@
 require 'sinatra/base'
 require 'interactor'
-require 'daily_activities/create_activity'
-require 'daily_activities/create_activity_record'
-require 'daily_activities/load_activities'
+
 
 module DailyActivities
+  autoload :CreateActivity, 'daily_activities/create_activity'
+  autoload :CreateActivityRecord, 'daily_activities/create_activity_record'
+  autoload :LoadActivities, 'daily_activities/load_activities'
+  autoload :LoadHistory, 'daily_activities/load_history'
+  autoload :LoadActivityRecords, 'daily_activities/load_activity_records'
+
   class Application < Sinatra::Base
     get '/' do
       current_date = Date.today
@@ -34,6 +38,14 @@ module DailyActivities
       end
     end
 
+    get '/activities' do
+      date = params[:date]
+      load_activity_records = LoadActivityRecords.call(record_date: date)
+      haml :activities, locals: {
+        activity_records: load_activity_records.activity_records
+      }
+    end
+
     post '/activities/:activity_id/records' do
       activity_id = params[:activity_id]
       record = params[:activity_record][:record] == 'true'
@@ -56,6 +68,11 @@ module DailyActivities
       end
 
       head 200
+    end
+
+    get '/history' do
+      load_history = LoadHistory.call
+      haml :history, locals: { record_dates: load_history.record_dates }
     end
 
     set :public_folder, File.dirname(__FILE__) + '/static'

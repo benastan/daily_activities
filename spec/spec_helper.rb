@@ -17,20 +17,15 @@ database_cleaner = DatabaseCleaner[
   { connection: DailyActivities::Database.connection }
 ]
 
-module WaitForAjax
-  def wait_for_ajax
-    Timeout.timeout(Capybara.default_wait_time) do
-      loop until finished_all_ajax_requests?
-    end
-  end
+autoload :WaitForAjax, './spec/support/wait_for_ajax'
 
-  def finished_all_ajax_requests?
-    page.evaluate_script('jQuery.active').zero?
-  end
+module DailyActivities
+  autoload :Factories, './spec/support/factories'
 end
 
 RSpec.configure do |config|
   config.include WaitForAjax, js: true
+  config.include DailyActivities::Factories
 
   config.before(:suite) do
     database_cleaner.clean_with(:truncation)
