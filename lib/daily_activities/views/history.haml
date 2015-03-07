@@ -1,3 +1,4 @@
+%ul.list-group
 - record_dates.each do |record_date|
-  %p
+  %li.list-group-item
     %a{ href: "/activities?date=#{record_date}" }= record_date

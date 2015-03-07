@@ -1,4 +1,5 @@
+%ul.list-group
 - activity_records.each do |activity_record|
-  %p
+  %li.list-group-item
     %span.glyphicon.glyphicon-ok
     = activity_record[:activity_name]

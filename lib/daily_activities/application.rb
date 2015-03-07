@@ -41,9 +41,7 @@ module DailyActivities
     get '/activities' do
       date = params[:date]
       load_activity_records = LoadActivityRecords.call(record_date: date)
-      haml :activities, locals: {
-        activity_records: load_activity_records.activity_records
-      }
+      haml :activities, locals: { activity_records: load_activity_records.activity_records }
     end
 
     post '/activities/:activity_id/records' do
