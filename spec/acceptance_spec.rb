@@ -30,6 +30,7 @@ describe 'daily activities', js: true do
       visit '/'
       click_on 'History'
       click_on '2014-01-01'
+      expect(page).to have_content '2014-01-01'
       expect(page).to have_content 'Went Running'
     end
 
