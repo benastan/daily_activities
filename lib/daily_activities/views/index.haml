@@ -27,5 +27,6 @@
           - else
             %input{ type: 'checkbox', id: "activity_record_record_true_#{activity[:id]}", name: 'activity_record[record]', value: 'true' }
           %span= activity[:activity_name]
-
+          %a{ href: "/activities/#{activity[:id]}/edit" } edit
         %input{ type: 'hidden', name: 'activity_record[record_date]', value: current_date.to_s }
+

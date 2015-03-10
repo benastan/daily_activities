@@ -1,0 +1,10 @@
+%form{ action: "/activities/#{activity[:id]}", method: 'post' }
+  .form-group{ class: "#{'has-error' if error}"}
+    %label.control-label{ for: 'activity_activity_name' } Activity Name
+    %input.form-control{ type: 'text', id: 'activity_activity_name', name: 'activity[activity_name]', value: activity[:activity_name] }
+
+    - if error
+      %label.control-label
+        %small= error
+
+  %button.btn.btn-default{ type: "submit" } Update Activity

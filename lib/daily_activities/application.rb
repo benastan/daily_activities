@@ -47,6 +47,19 @@ module DailyActivities
       }
     end
 
+    get '/activities/:activity_id/edit' do
+      activity = Database.connection[:activities][id: params[:activity_id]]
+      haml :edit, locals: { activity: activity, error: nil }
+    end
+
+    post '/activities/:activity_id' do
+      Database.connection[:activities].where(id: params[:activity_id]).update(
+        activity_name: params[:activity][:activity_name]
+      )
+
+      redirect to('/')
+    end
+
     post '/activities/:activity_id/records' do
       activity_id = params[:activity_id]
       record = params[:activity_record][:record] == 'true'
