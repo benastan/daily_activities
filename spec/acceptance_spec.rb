@@ -47,5 +47,16 @@ describe 'daily activities', js: true do
     wait_for_ajax
     visit '/'
     expect(find_field('Go Running')).to_not be_checked
+
+    click_on 'Yesterday'
+    check 'Go Running'
+    wait_for_ajax
+    click_on 'Today'
+    expect(find_field('Go Running')).to_not be_checked
+    
+    click_on 'History'
+    click_on '2013-12-31'
+    expect(page).to have_content '2013-12-31'
+    expect(page).to have_content 'Go Running'
   end
 end

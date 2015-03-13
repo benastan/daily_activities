@@ -11,7 +11,7 @@ module DailyActivities
 
   class Application < Sinatra::Base
     get '/' do
-      current_date = Date.today
+      current_date = params[:date] ? Date.parse(params[:date]) : Date.today
       load_activities = LoadActivities.call(date: current_date)
       haml :index, locals: {
         activity_name: nil,

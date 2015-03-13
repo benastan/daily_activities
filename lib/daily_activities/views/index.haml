@@ -3,6 +3,9 @@
     text-decoration: line-through;
   }
 
+.page-header
+  %em= current_date.strftime('%A, %B %d, %Y')
+
 %form{ action: '/activities', method: 'post' }
   .form-group{ class: "#{'has-error' if error}"}
     %label.control-label{ for: 'activity_activity_name' } New Activity
@@ -12,21 +15,28 @@
       %label.control-label
         %small= error
 
-
   %button.btn.btn-default{ type: "submit" } Create Activity
 
 %ul.list-group
-- activities.each do |activity|
-  %li.list-group-item
-    %form#new_activity_record{ action: "/activities/#{activity[:id]}/records", method: 'post', data: { remote: '' } }
-      %div.checkbox{ style: 'margin: 0' }
-        %label{ for: "activity_record_record_true_#{activity[:id]}", style: 'display: block;' }
-          %input{ type: 'hidden', id: "activity_record_record_false_#{activity[:id]}", name: 'activity_record[record]', value: 'false' }
-          - if activity[:recorded]
-            %input{ type: 'checkbox', id: "activity_record_record_true_#{activity[:id]}", name: 'activity_record[record]', checked: '', value: 'true' }
-          - else
-            %input{ type: 'checkbox', id: "activity_record_record_true_#{activity[:id]}", name: 'activity_record[record]', value: 'true' }
-          %span= activity[:activity_name]
-          %a{ href: "/activities/#{activity[:id]}/edit" } edit
-        %input{ type: 'hidden', name: 'activity_record[record_date]', value: current_date.to_s }
+  - activities.each do |activity|
+    %li.list-group-item
+      %form#new_activity_record{ action: "/activities/#{activity[:id]}/records", method: 'post', data: { remote: '' } }
+        %div.checkbox{ style: 'margin: 0' }
+          %label{ for: "activity_record_record_true_#{activity[:id]}", style: 'display: block;' }
+            %input{ type: 'hidden', id: "activity_record_record_false_#{activity[:id]}", name: 'activity_record[record]', value: 'false' }
+            - if activity[:recorded]
+              %input{ type: 'checkbox', id: "activity_record_record_true_#{activity[:id]}", name: 'activity_record[record]', checked: '', value: 'true' }
+            - else
+              %input{ type: 'checkbox', id: "activity_record_record_true_#{activity[:id]}", name: 'activity_record[record]', value: 'true' }
+            %span= activity[:activity_name]
+            %a{ href: "/activities/#{activity[:id]}/edit" } edit
+          %input{ type: 'hidden', name: 'activity_record[record_date]', value: current_date.to_s }
 
+.row
+  .col-xs-6
+    - if current_date ==  Date.today
+      %a{ href: "?date=#{current_date - 1}" } &larr; Yesterday
+
+  .col-xs-6.text-right
+    - if current_date !=  Date.today
+      %a{ href: "?" } Today &rarr;
