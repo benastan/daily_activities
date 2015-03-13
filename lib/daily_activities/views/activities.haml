@@ -1,9 +1,16 @@
-%h1
-  Recorded Activities
-  %small= date
+.page-header
+  %h1
+    Recorded Activities
+    %small= Date.parse(date).strftime('%A, %B %d, %Y')
   
+  %p
+    %a{ href: "/?date=#{date}" } Revise
+
 %ul.list-group
-- activity_records.each do |activity_record|
-  %li.list-group-item
-    %span.glyphicon.glyphicon-ok
-    = activity_record[:activity_name]
+  - activity_records.each do |activity_record|
+    %li.list-group-item
+      %span.glyphicon.glyphicon-ok
+      &nbsp;
+      = activity_record[:activity_name]
+
+= haml :date_pagination, locals: { date: Date.parse(date) }

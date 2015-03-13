@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "shotgun"
   spec.add_development_dependency "pry"
   spec.add_development_dependency "timecop"
+  spec.add_development_dependency "launchy"
   spec.add_dependency "interactor"
   spec.add_dependency "sinatra"
   spec.add_dependency "pg"

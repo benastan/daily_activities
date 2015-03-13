@@ -1,0 +1,15 @@
+.row.panel
+  .col-xs-6
+    %p
+      %a{ href: "?date=#{date - 1}" }
+        - if date ==  Date.today
+          &larr; Yesterday
+        - else
+          &larr; Previous Day
+
+  .col-xs-6.text-right
+    %p
+      - if date ==  Date.today - 1
+        %a{ href: "?date=#{Date.today}" } Today &rarr;
+      - elsif date !=  Date.today
+        %a{ href: "?date=#{date + 1}" } &rarr; Next Day

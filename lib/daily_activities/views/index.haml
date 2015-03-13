@@ -6,16 +6,18 @@
 .page-header
   %em= current_date.strftime('%A, %B %d, %Y')
 
-%form{ action: '/activities', method: 'post' }
-  .form-group{ class: "#{'has-error' if error}"}
-    %label.control-label{ for: 'activity_activity_name' } New Activity
-    %input.form-control{ type: 'text', id: 'activity_activity_name', name: 'activity[activity_name]', value: activity_name }
+.panel
+  %form{ action: '/activities', method: 'post' }
+    .form-group{ class: "#{'has-error' if error}"}
+      %label.control-label{ for: 'activity_activity_name' } New Activity
+      %input.form-control{ type: 'text', id: 'activity_activity_name', name: 'activity[activity_name]', value: activity_name }
 
-    - if error
-      %label.control-label
-        %small= error
+      - if error
+        %label.control-label
+          %small= error
 
-  %button.btn.btn-default{ type: "submit" } Create Activity
+    .form-group
+      %button.btn.btn-default{ type: "submit" } Create Activity
 
 %ul.list-group
   - activities.each do |activity|
@@ -32,16 +34,4 @@
             %a{ href: "/activities/#{activity[:id]}/edit" } edit
           %input{ type: 'hidden', name: 'activity_record[record_date]', value: current_date.to_s }
 
-.row
-  .col-xs-6
-    %a{ href: "?date=#{current_date - 1}" }
-      - if current_date ==  Date.today
-        &larr; Yesterday
-      - else
-        &larr; Previous Day
-
-  .col-xs-6.text-right
-    - if current_date ==  Date.today - 1
-      %a{ href: "?" } Today &rarr;
-    - elsif current_date !=  Date.today
-      %a{ href: "?date=#{current_date + 1}" } &rarr; Next Day
+= haml :date_pagination, locals: { date: current_date }
