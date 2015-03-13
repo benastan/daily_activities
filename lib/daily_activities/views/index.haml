@@ -34,9 +34,14 @@
 
 .row
   .col-xs-6
-    - if current_date ==  Date.today
-      %a{ href: "?date=#{current_date - 1}" } &larr; Yesterday
+    %a{ href: "?date=#{current_date - 1}" }
+      - if current_date ==  Date.today
+        &larr; Yesterday
+      - else
+        &larr; Previous Day
 
   .col-xs-6.text-right
-    - if current_date !=  Date.today
+    - if current_date ==  Date.today - 1
       %a{ href: "?" } Today &rarr;
+    - elsif current_date !=  Date.today
+      %a{ href: "?date=#{current_date + 1}" } &rarr; Next Day

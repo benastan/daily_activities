@@ -15,6 +15,10 @@ describe 'daily activities', js: true do
     
     fill_in 'New Activity', with: 'Went Running'
     click_on 'Create Activity'
+
+    fill_in 'New Activity', with: 'Slept well'
+    click_on 'Create Activity'
+
     check 'Went Running'
     wait_for_ajax
     visit '/'
@@ -51,12 +55,26 @@ describe 'daily activities', js: true do
     click_on 'Yesterday'
     check 'Go Running'
     wait_for_ajax
+    
+    click_on 'Previous Day'
+    check 'Slept well'
+    wait_for_ajax
+    click_on 'Next Day'
+    expect(find_field('Slept well')).to_not be_checked
+    
     click_on 'Today'
     expect(find_field('Go Running')).to_not be_checked
-    
+
     click_on 'History'
     click_on '2013-12-31'
     expect(page).to have_content '2013-12-31'
     expect(page).to have_content 'Go Running'
+    expect(page).to_not have_content 'Slept well'
+
+    click_on 'History'
+    click_on '2013-12-30'
+    expect(page).to have_content '2013-12-30'
+    expect(page).to_not have_content 'Go Running'
+    expect(page).to have_content 'Slept well'
   end
 end
