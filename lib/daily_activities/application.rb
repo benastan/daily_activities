@@ -1,6 +1,6 @@
 require 'sinatra/base'
 require 'interactor'
-
+require 'faraday'
 
 module DailyActivities
   autoload :CreateActivity, 'daily_activities/create_activity'
@@ -8,11 +8,32 @@ module DailyActivities
   autoload :LoadActivities, 'daily_activities/load_activities'
   autoload :LoadHistory, 'daily_activities/load_history'
   autoload :LoadActivityRecords, 'daily_activities/load_activity_records'
+  autoload :Google, 'daily_activities/google'
 
   class Application < Sinatra::Base
+    before do
+      unless current_user || request.path == '/oauth/callback'
+        state = SecureRandom.hex
+        session[:auth_state] = state
+        google = Google.new
+        authorization_url = google.authorization_url(state: state)
+        redirect to(authorization_url)
+      end
+    end
+
+    get '/oauth/callback' do
+      google = Google.new
+      google.fetch_access_token(code: params['code'])
+      session['user'] = google.me
+      redirect to('/') 
+    end
+
     get '/' do
       current_date = params[:date] ? Date.parse(params[:date]) : Date.today
-      load_activities = LoadActivities.call(date: current_date)
+      load_activities = LoadActivities.call(
+        date: current_date,
+        user_id: current_user['id']
+      )
       haml :index, locals: {
         activity_name: nil,
         error: nil,
@@ -23,12 +44,18 @@ module DailyActivities
 
     post '/activities' do
       activity_name = params[:activity][:activity_name]
-      create_activity = CreateActivity.call(activity_name: activity_name)
+      create_activity = CreateActivity.call(
+        activity_name: activity_name,
+        user_id: current_user['id']
+      )
       if create_activity.success?
         redirect to('/')
       else
         current_date = Date.today
-        load_activities = LoadActivities.call(date: current_date)
+        load_activities = LoadActivities.call(
+          date: current_date,
+          user_id: current_user['id']
+        )
         haml :index, locals: {
           activity_name: activity_name,
           error: create_activity.message,
@@ -96,9 +123,14 @@ module DailyActivities
         status status
         ''
       end
+
+      def current_user
+        session[:user]
+      end
     end
 
     configure do
+      enable :sessions
       enable :logging
       file = File.new("#{settings.root}/../../log/#{settings.environment}.log", 'a+')
       file.sync = true

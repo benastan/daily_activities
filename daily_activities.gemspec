@@ -35,4 +35,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "foreman"
   spec.add_dependency "haml"
   spec.add_dependency "unicorn"
+  spec.add_dependency "faraday"
 end

@@ -7,11 +7,42 @@ describe 'daily activities', js: true do
     Timecop.travel(Date.new(2014, 01, 01)) { example.run }
   end
 
+  let(:jane) do
+    {
+      'id' => '12331',
+      'name' => {
+        'givenName' => 'Jane'
+      },
+      'emails' => [
+        { 'value' => 'jane@example.com' }
+      ]
+    }
+  end
+
+  let(:joe) do
+    {
+      'id' => '91234',
+      'name' => {
+        'givenName' => 'Joe'
+      },
+      'emails' => [
+        { 'value' => 'joe@example.com' }
+      ]
+    }
+  end
+
+  def sign_in(user)
+    allow_any_instance_of(DailyActivities::Application).to receive(:current_user).and_call_original
+    allow_any_instance_of(DailyActivities::Application).to receive(:current_user).and_return(user)
+  end
+
   specify do
+    sign_in(jane)
+
     visit '/'
 
     click_on 'Create Activity'
-    expect(page).to have_content 'Activity name is blank.'
+    expect(page).to have_content 'Required fields are missing'
     
     fill_in 'New Activity', with: 'Went Running'
     click_on 'Create Activity'
@@ -80,5 +111,9 @@ describe 'daily activities', js: true do
     expect(page).to have_content 'Monday, December 30, 2013'
     expect(page).to_not have_content 'Go Running'
     expect(page).to have_content 'Slept well'
+
+    sign_in(joe)
+    visit '/'
+    expect(page).to_not have_content 'Slept well'
   end
 end
