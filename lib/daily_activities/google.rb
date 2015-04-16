@@ -6,7 +6,7 @@ module DailyActivities
       super('https://www.googleapis.com')
     end
 
-    def authorization_url(state:)
+    def authorization_url(state: raise)
       uri = URI('https://accounts.google.com/o/oauth2/auth')
       uri.query = Rack::Utils.build_query(
         client_id: Google.client_id,
@@ -18,7 +18,7 @@ module DailyActivities
       uri.to_s
     end
 
-  def fetch_access_token(code:)
+  def fetch_access_token(code: raise)
       data = {
         code: code,
         client_id: Google.client_id,
