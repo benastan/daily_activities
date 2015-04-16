@@ -11,8 +11,21 @@ module DailyActivities
       context[:activities] = Database.
         connection[:activities].
         left_join(:activity_records, activity_id: :id, record_date: date.to_s).
+        # left_outer_join(:activity_records, {activity_id: :id}, table_alias: :ar).
         where(user_id: user_id).
-        select(activities_star, Sequel.as(activity_records_id_is_not_null, 'recorded')).
+        select(
+          activities_star,
+          Sequel.as(activity_records_id_is_not_null, 'recorded'),
+          Sequel.as(
+            Database.
+              connection[:activity_records].
+              where(activity_id: :activities__id).
+              select(Sequel.function(:count, :activity_records__id)),
+            'record_count'
+          )
+        ).
+        order(Sequel.desc(Sequel.lit('record_count'))).
+        # order(Sequel.desc(Sequel.function(:count, :ar__id))).
         all
     end
   end
