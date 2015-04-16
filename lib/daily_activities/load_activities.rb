@@ -4,15 +4,13 @@ module DailyActivities
 
     def call
       date = context[:date]
-      activity_records = Database.connection[:activity_records].where(record_date: date.to_s)
-      context[:activities] = Database.connection[:activities].all.map do |activity|
-        activity_record = activity_records.find do |activity_record|
-          activity_record[:activity_id] == activity[:id]
-        end
-
-        activity[:recorded] = !!activity_record
-        activity
-      end
+      activities_star = Sequel.expr(:activities).*
+      activity_records_id_is_not_null = Sequel.~(:activity_records__id => nil)
+      context[:activities] = Database.
+        connection[:activities].
+        left_join(:activity_records, activity_id: :id, record_date: date.to_s).
+        select(activities_star, Sequel.as(activity_records_id_is_not_null, 'recorded')).
+        all
     end
   end
 end
