@@ -6,7 +6,6 @@ module DailyActivities
   autoload :CreateActivity, 'daily_activities/create_activity'
   autoload :CreateActivityRecord, 'daily_activities/create_activity_record'
   autoload :LoadActivities, 'daily_activities/load_activities'
-  autoload :LoadHistory, 'daily_activities/load_history'
   autoload :LoadActivityRecords, 'daily_activities/load_activity_records'
   autoload :Google, 'daily_activities/google'
 
@@ -109,11 +108,6 @@ module DailyActivities
       end
 
       head 200
-    end
-
-    get '/history' do
-      load_history = LoadHistory.call
-      haml :history, locals: { record_dates: load_history.record_dates }
     end
 
     set :public_folder, File.dirname(__FILE__) + '/static'

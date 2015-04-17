@@ -71,12 +71,12 @@ describe 'daily activities', js: true do
     click_on 'Update Activity'
     expect(page).to have_content 'Go Running'
 
-    Timecop.travel(Date.today + 20) do
+    Timecop.travel(Date.today + 2) do
       visit '/'
-      click_on 'History'
-      click_on '2014-01-01'
+      click_on 'Yesterday'
+      click_on 'Previous Day'
       expect(page).to have_content 'Wednesday, January 01, 2014'
-      expect(page).to have_content 'Go Running'
+      expect(find_field('Go Running')).to be_checked
     end
 
     visit '/'
@@ -98,21 +98,15 @@ describe 'daily activities', js: true do
     click_on 'Today'
     expect(find_field('Go Running')).to_not be_checked
 
-    click_on 'History'
-    click_on '2013-12-31'
-    expect(page).to have_content 'Tuesday, December 31, 2013'
-    expect(page).to have_content 'Go Running'
-    expect(page).to_not have_content 'Slept well'
-
-    click_on 'Revise'
+    click_on 'Yesterday'
     expect(page).to have_content 'Tuesday, December 31, 2013'
     expect(find_field('Go Running')).to be_checked
+    expect(find_field('Slept well')).to_not be_checked
 
-    click_on 'History'
-    click_on '2013-12-30'
+    click_on 'Previous Day'
     expect(page).to have_content 'Monday, December 30, 2013'
-    expect(page).to_not have_content 'Go Running'
-    expect(page).to have_content 'Slept well'
+    expect(find_field('Slept well')).to be_checked
+    expect(find_field('Go Running')).to_not be_checked
 
     sign_in(joe)
     visit '/'
