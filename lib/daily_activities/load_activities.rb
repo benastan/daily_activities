@@ -24,8 +24,10 @@ module DailyActivities
             'record_count'
           )
         ).
-        order(Sequel.desc(Sequel.lit('record_count'))).
-        # order(Sequel.desc(Sequel.function(:count, :ar__id))).
+        order(
+          Sequel.desc(Sequel.lit('recorded')),
+          Sequel.desc(Sequel.lit('record_count'))
+        ).
         all
     end
   end

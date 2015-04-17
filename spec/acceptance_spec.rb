@@ -43,17 +43,19 @@ describe 'daily activities', js: true do
 
     click_on 'Create Activity'
     expect(page).to have_content 'Required fields are missing'
-    
-    fill_in 'New Activity', with: 'Went Running'
-    click_on 'Create Activity'
 
     fill_in 'New Activity', with: 'Slept well'
+    click_on 'Create Activity'
+    
+    fill_in 'New Activity', with: 'Went Running'
     click_on 'Create Activity'
 
     check 'Went Running'
     wait_for_ajax
     visit '/'
     expect(find_field('Went Running')).to be_checked
+
+    expect(all('.list-group-item').map(&:text)).to match [ 'Went Running edit', 'Slept well edit' ]
 
     Timecop.travel(Date.today + 10) do
       visit '/'
