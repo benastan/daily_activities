@@ -1,0 +1,12 @@
+.row{ style: 'text-align: center' }
+
+  - data.each_slice(5).to_a.each do |group_data|
+    - group_values = group_data.map { |activity| activity[:value] }
+    .col-md-4
+      - if group_values.min == group_values.max
+        %h3 #{group_values.min}
+      - else
+        %h3 #{group_values.min} - #{group_values.max} times
+      %h4 Activities Recorded
+      %div
+        %canvas{ data: { pie: { chart: JSON.dump(group_data) } } }

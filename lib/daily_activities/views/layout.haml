@@ -15,10 +15,19 @@
             %span.icon-bar
           %a.navbar-brand(href="/") Daily Activities
 
+        %div.collapse.navbar-collapse#primary-navigation
+          %ul.nav.navbar-nav
+            %li
+              %a(href="/") Record
+
+          %ul.nav.navbar-nav
+            %li
+              %a(href="/data") Visualize
     .container
       = yield
 
     %script{ type: 'text/javascript', src: '/jquery.js'}
     %script{ type: 'text/javascript', src: 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js'}
     %script{ type: 'text/javascript', src: '/jquery-ujs.js'}
+    %script{ type: 'text/javascript', src: '/chart.js'}
     %script{ type: 'text/javascript', src: '/script.js'}

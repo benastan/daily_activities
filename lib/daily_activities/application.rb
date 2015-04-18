@@ -1,6 +1,7 @@
 require 'sinatra/base'
 require 'interactor'
 require 'faraday'
+require 'psych'
 
 module DailyActivities
   autoload :CreateActivity, 'daily_activities/create_activity'
@@ -34,11 +35,29 @@ module DailyActivities
         date: current_date,
         user_id: current_user['id']
       )
+
       haml :index, locals: {
         activity_name: nil,
         error: nil,
         activities: load_activities.activities,
         current_date: current_date
+      }
+    end
+
+    get '/data' do
+      context = { user_id: current_user['id'] }
+      context[:date] = params[:date] if params[:date]
+      load_activities = LoadActivities.call(context)
+      data = load_activities.activities.map do |activity|
+        {
+          label: activity[:activity_name],
+          value: activity[:record_count],
+          color: generate_color
+        }
+      end
+
+      haml :data, locals: {
+        data: data
       }
     end
 
@@ -120,7 +139,17 @@ module DailyActivities
       end
 
       def current_user
-        session[:user]
+        if ENV['USER_YML']
+          Psych.load(File.open(ENV['USER_YML']).read)
+        else
+          session[:user]
+        end
+      end
+
+      def generate_color
+        colors = (0..9).to_a.concat(('A'..'F').to_a)
+        hex = 6.times.map { |i| colors.sample }.join('')
+        "##{hex}"
       end
     end
 
