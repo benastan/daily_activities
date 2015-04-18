@@ -1,34 +1,36 @@
 module DailyActivities
   class LoadActivities
     include Interactor
+    include SqlHelper
 
     def call
       date = context[:date]
       user_id = context[:user_id]
 
-      activities_star = Sequel.expr(:activities).*
-      activity_records_id_is_not_null = Sequel.~(:activity_records__id => nil)
-      context[:activities] = Database.
+      query = Database.
         connection[:activities].
-        left_join(:activity_records, activity_id: :id, record_date: date.to_s).
-        # left_outer_join(:activity_records, {activity_id: :id}, table_alias: :ar).
-        where(user_id: user_id).
-        select(
-          activities_star,
-          Sequel.as(activity_records_id_is_not_null, 'recorded'),
-          Sequel.as(
-            Database.
-              connection[:activity_records].
-              where(activity_id: :activities__id).
-              select(Sequel.function(:count, :activity_records__id)),
-            'record_count'
-          )
-        ).
-        order(
-          Sequel.desc(Sequel.lit('recorded')),
-          Sequel.desc(Sequel.lit('record_count'))
-        ).
-        all
+        where(user_id: user_id)
+
+      query = GroupByActivityColumns.add_to(query)
+      query = ActivityRecordJoin.add_to(query, date: date)
+
+      select_fields = [
+        star(:activities),
+        Sequel.as(activity_activity_record_ids, 'activity_record_ids'),
+        Sequel.as(activity_has_activity_records, 'recorded'),
+        Sequel.as(activity_record_count, 'record_count')
+      ]
+
+      order_by_fields = [
+        Sequel.asc(Sequel.lit('recorded')),
+        Sequel.desc(Sequel.lit('record_count'))
+      ]
+
+      query = query.
+        select(*select_fields).
+        order(*order_by_fields)
+
+      context[:activities] = query.all
     end
   end
 end
