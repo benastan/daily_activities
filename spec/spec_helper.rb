@@ -9,6 +9,7 @@ require 'capybara'
 require 'database_cleaner'
 require 'timecop'
 require 'pry'
+require 'awesome_print'
 
 Capybara.current_driver = :webkit
 Capybara.app = DailyActivities::Application
