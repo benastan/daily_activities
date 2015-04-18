@@ -8,6 +8,7 @@ module DailyActivities
   autoload :LoadActivities, 'daily_activities/load_activities'
   autoload :LoadActivityRecords, 'daily_activities/load_activity_records'
   autoload :Google, 'daily_activities/google'
+  autoload :SqlHelper, 'daily_activities/sql_helper'
 
   class Application < Sinatra::Base
     before do
