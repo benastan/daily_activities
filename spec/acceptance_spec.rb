@@ -46,11 +46,18 @@ describe 'daily activities', js: true do
 
     fill_in 'New Activity', with: 'Slept well'
     click_on 'Create Activity'
-    
-    fill_in 'New Activity', with: 'Went Running'
-    click_on 'Create Activity'
+    expect(find_field('Slept well')).to be_checked
 
-    check 'Went Running'
+    Timecop.travel(Date.today + 1) do
+      visit '/'
+      click_on 'Yesterday'
+      fill_in 'New Activity', with: 'Went Running'
+      click_on 'Create Activity'
+      expect(find_field('Slept well')).to be_checked
+    end
+
+    visit '/'
+    uncheck 'Slept well'
     wait_for_ajax
     visit '/'
     expect(find_field('Went Running')).to be_checked

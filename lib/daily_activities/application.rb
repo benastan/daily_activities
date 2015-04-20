@@ -6,6 +6,7 @@ require 'psych'
 module DailyActivities
   autoload :CreateActivity, 'daily_activities/create_activity'
   autoload :CreateActivityRecord, 'daily_activities/create_activity_record'
+  autoload :CreateActivityAndActivityRecord, 'daily_activities/create_activity_and_activity_record'
   autoload :LoadActivities, 'daily_activities/load_activities'
   autoload :LoadActivityRecords, 'daily_activities/load_activity_records'
   autoload :Google, 'daily_activities/google'
@@ -57,12 +58,14 @@ module DailyActivities
 
     post '/activities' do
       activity_name = params[:activity][:activity_name]
-      create_activity = CreateActivity.call(
+      record_date = params[:activity_record][:record_date]
+      create_activity = CreateActivityAndActivityRecord.call(
         activity_name: activity_name,
-        user_id: current_user['id']
+        user_id: current_user['id'],
+        record_date: record_date
       )
       if create_activity.success?
-        redirect to('/')
+        redirect to('?date=%s' % record_date)
       else
         current_date = Date.today
         load_activities = LoadActivities.call(

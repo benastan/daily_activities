@@ -11,6 +11,8 @@
     .form-group{ class: "#{'has-error' if error}"}
       %label.control-label{ for: 'activity_activity_name' } New Activity
       %input.form-control{ type: 'text', id: 'activity_activity_name', name: 'activity[activity_name]', value: activity_name }
+      %input{ type: 'hidden', name: 'activity_record[record_date]', value: current_date.to_s }
+
 
       - if error
         %label.control-label
