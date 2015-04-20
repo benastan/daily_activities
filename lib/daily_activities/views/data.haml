@@ -1,12 +1,25 @@
 .row{ style: 'text-align: center' }
+  .col-md-8
+    %h2{ style: 'text-align: center' } Activity Breakdown
+    %br/
+    %div
+      %canvas{ data: { pie: { chart: JSON.dump(data) } } }
+    %br/
 
-  - data.each_slice(5).to_a.each do |group_data|
-    - group_values = group_data.map { |activity| activity[:value] }
-    .col-md-4
-      - if group_values.min == group_values.max
-        %h3 #{group_values.min}
-      - else
-        %h3 #{group_values.min} - #{group_values.max} times
-      %h4 Activities Recorded
-      %div
-        %canvas{ data: { pie: { chart: JSON.dump(group_data) } } }
+  .col-md-4{ style: 'max-height: 290px; overflow-y: auto'}
+    %ul.list-group
+      - data.each do |activity|
+        %li.list-group-item  
+          .badge= activity[:value]
+          = activity[:label]
+
+  / - data.each_slice(5).to_a.each do |group_data|
+  /   - group_values = group_data.map { |activity| activity[:value] }
+  /   .col-md-4
+  /     - if group_values.min == group_values.max
+  /       %h3 #{group_values.min}
+  /     - else
+  /       %h3 #{group_values.min} - #{group_values.max} times
+  /     %h4 Activities Recorded
+  /     %div
+  /       %canvas{ data: { pie: { chart: JSON.dump(group_data) } } }

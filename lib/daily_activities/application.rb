@@ -10,6 +10,7 @@ module DailyActivities
   autoload :LoadActivityRecords, 'daily_activities/load_activity_records'
   autoload :Google, 'daily_activities/google'
   autoload :SqlHelper, 'daily_activities/sql_helper'
+  autoload :ChartJS, 'daily_activities/chart_js'
 
   class Application < Sinatra::Base
     before do
@@ -48,16 +49,9 @@ module DailyActivities
       context = { user_id: current_user['id'] }
       context[:date] = params[:date] if params[:date]
       load_activities = LoadActivities.call(context)
-      data = load_activities.activities.map do |activity|
-        {
-          label: activity[:activity_name],
-          value: activity[:record_count],
-          color: generate_color
-        }
-      end
 
       haml :data, locals: {
-        data: data
+        data: ChartJS::PieChart.new(load_activities.activities)
       }
     end
 
@@ -144,12 +138,6 @@ module DailyActivities
         else
           session[:user]
         end
-      end
-
-      def generate_color
-        colors = (0..9).to_a.concat(('A'..'F').to_a)
-        hex = 6.times.map { |i| colors.sample }.join('')
-        "##{hex}"
       end
     end
 
