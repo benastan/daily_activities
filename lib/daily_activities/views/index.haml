@@ -3,16 +3,17 @@
     text-decoration: line-through;
   }
 
+%h1= list[:list_title]
+
 .page-header
   %em= current_date.strftime('%A, %B %d, %Y')
 
 .panel
-  %form{ action: '/activities', method: 'post' }
+  %form{ action: '/lists/%s/activities' % list[:id], method: 'post' }
     .form-group{ class: "#{'has-error' if error}"}
       %label.control-label{ for: 'activity_activity_name' } New Activity
-      %input.form-control{ type: 'text', id: 'activity_activity_name', name: 'activity[activity_name]', value: activity_name }
+      %input.form-control{ type: 'text', id: 'activity_activity_name', name: 'activity[activity_name]', value: activity_name, autofocus: '1' }
       %input{ type: 'hidden', name: 'activity_record[record_date]', value: current_date.to_s }
-
 
       - if error
         %label.control-label

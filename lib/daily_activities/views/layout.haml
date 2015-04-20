@@ -18,11 +18,18 @@
         %div.collapse.navbar-collapse#primary-navigation
           %ul.nav.navbar-nav
             %li
-              %a(href="/") Record
-
+              %a(href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false") Lists
+              %ul(class="dropdown-menu" role="menu")
+                - lists.all.each do |list|
+                  %li
+                    %a(href="/lists/#{list[:id]}")= list[:list_title]
+                %li
+                  %a(href="/lists/new") New List
+            
           %ul.nav.navbar-nav
             %li
               %a(href="/data") Visualize
+
     .container
       = yield
 

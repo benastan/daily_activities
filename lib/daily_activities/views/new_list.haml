@@ -1,0 +1,13 @@
+%h1 New List
+
+%form{ action: '/lists', method: 'post' }
+  .form-group{ class: "#{'has-error' if @error}"}
+    %label.control-label{ for: 'list_list_title' } Title
+    %input.form-control{ type: 'text', id: 'list_list_title', name: 'list[list_title]' }
+  
+    - if @error
+      %label.control-label
+        %small= @error
+
+  .form-group
+    %button.btn.btn-default{ type: "submit" } Create List

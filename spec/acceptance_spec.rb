@@ -40,7 +40,7 @@ describe 'daily activities', js: true do
     sign_in(jane)
 
     visit '/'
-
+    expect(page).to have_content 'Daily Activities List'
     click_on 'Create Activity'
     expect(page).to have_content 'Required fields are missing'
 
@@ -114,6 +114,21 @@ describe 'daily activities', js: true do
     expect(page).to have_content 'Monday, December 30, 2013'
     expect(find_field('Slept well')).to be_checked
     expect(find_field('Go Running')).to_not be_checked
+
+    click_on 'Lists'
+    click_on 'New List'
+    click_on 'Create List'
+    expect(page).to have_content 'Required fields are missing'
+
+    fill_in 'Title', with: 'Grocery List'
+    click_on 'Create List'
+    expect(page).to have_content 'Grocery List'
+    fill_in 'New Activity', with: 'Broccoli'
+    click_on 'Create Activity'
+    expect(find_field('Broccoli')).to be_checked
+
+    visit '/'
+    expect(page).to_not have_content 'Broccoli'
 
     sign_in(joe)
     visit '/'

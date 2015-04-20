@@ -32,18 +32,57 @@ module DailyActivities
     end
 
     get '/' do
+      if lists.count == 0
+        list_id = Database.connection[:lists].insert(
+          list_title: 'Daily Activities List',
+          user_id: current_user['id'],
+          created_at: DateTime.now,
+          updated_at: DateTime.now
+        )
+      else
+        list_id = lists.first[:id]
+      end
+      redirect to('/lists/%s' % list_id)
+    end
+
+    get '/lists/new' do
+      haml :new_list
+    end
+
+    get '/lists/:list_id' do
+      list_id = params[:list_id]
       current_date = params[:date] ? Date.parse(params[:date]) : Date.today
+      list = Database.connection[:lists][id: list_id, user_id: current_user['id']]
       load_activities = LoadActivities.call(
+        list_id: list_id,
         date: current_date,
         user_id: current_user['id']
       )
 
       haml :index, locals: {
+        list: list,
         activity_name: nil,
         error: nil,
         activities: load_activities.activities,
         current_date: current_date
       }
+    end
+
+    post '/lists' do
+      list_title = params[:list][:list_title]
+
+      if list_title == ''
+        @error = 'Required fields are missing'
+        haml :new_list
+      else
+        list_id = Database.connection[:lists].insert(
+          list_title: list_title,
+          user_id: current_user['id'],
+          created_at: DateTime.now,
+          updated_at: DateTime.now
+        )
+        redirect to('/lists/%s' % list_id)
+      end
     end
 
     get '/data' do
@@ -56,23 +95,27 @@ module DailyActivities
       }
     end
 
-    post '/activities' do
+    post '/lists/:list_id/activities' do
       activity_name = params[:activity][:activity_name]
+      list_id = params[:list_id]
       record_date = params[:activity_record][:record_date]
       create_activity = CreateActivityAndActivityRecord.call(
         activity_name: activity_name,
         user_id: current_user['id'],
-        record_date: record_date
+        record_date: record_date,
+        list_id: list_id
       )
       if create_activity.success?
-        redirect to('?date=%s' % record_date)
+        redirect to('lists/%s?date=%s' % [list_id, record_date])
       else
+        list = Database.connection[:lists][id: list_id, user_id: current_user['id']]
         current_date = Date.today
         load_activities = LoadActivities.call(
           date: current_date,
           user_id: current_user['id']
         )
         haml :index, locals: {
+          list: list,
           activity_name: activity_name,
           error: create_activity.message,
           activities: load_activities.activities,
@@ -141,6 +184,10 @@ module DailyActivities
         else
           session[:user]
         end
+      end
+
+      def lists
+        Database.connection[:lists].where(user_id: current_user['id'])
       end
     end
 

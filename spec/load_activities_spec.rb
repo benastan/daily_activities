@@ -3,14 +3,14 @@ require 'spec_helper'
 module DailyActivities
   describe LoadActivities do
     let(:context) do
-      {date: activity_record_date, user_id: 'user'}
+      {date: activity_record_date, user_id: 'user' }
     end
 
     subject { LoadActivities.call(context) }
-    let!(:another_activity) { create_activity(activity_name: 'Another Activity', user_id: 'user') }
-    let!(:activity) { create_activity(activity_name: 'Activity', user_id: 'user') }
-    let!(:other_activity) { create_activity(activity_name: 'Other Activity', user_id: 'user') }
-    let!(:other_user_activity) { create_activity(activity_name: 'Other User Activity', user_id: 'other user') }
+    let!(:another_activity) { create_activity(activity_name: 'Another Activity', user_id: 'user', list_id: 2) }
+    let!(:activity) { create_activity(activity_name: 'Activity', user_id: 'user', list_id: 1) }
+    let!(:other_activity) { create_activity(activity_name: 'Other Activity', user_id: 'user', list_id: 1) }
+    let!(:other_user_activity) { create_activity(activity_name: 'Other User Activity', user_id: 'other user', list_id: 2) }
     
     before do
       create_activity_record(activity: activity, record_date: Date.new(2014, 01, 05))
@@ -22,6 +22,33 @@ module DailyActivities
     shared_examples_for 'order of :attribute is :list' do |attribute, list|
       specify do
         expect(subject.activities.map{|activity| activity[attribute]}).to eq list
+      end
+    end
+
+    context 'when list_id has been supplied' do
+      before { context[:list_id] = 1 }
+      let(:activity_record_date) { Date.new(2014, 01, 01) }
+
+      it_should_behave_like 'order of :attribute is :list', :activity_name, ['Activity', 'Other Activity']
+      it_should_behave_like 'order of :attribute is :list', :record_count, [2, 1]
+      it_should_behave_like 'order of :attribute is :list', :recorded, [nil, nil]
+      
+      it 'orders "Activity" first, with the most activity records' do
+        expect(subject.activities[0]).to match hash_including(
+          activity_name: 'Activity',
+          id: activity[:id],
+          record_count: 2,
+          recorded: nil
+        )
+      end
+
+      it 'orders "Other Activity" last, with the seconds most activity records' do
+        expect(subject.activities[1]).to match hash_including(
+          activity_name: 'Other Activity',
+          id: other_activity[:id],
+          record_count: 1,
+          recorded: nil
+        )
       end
     end
 

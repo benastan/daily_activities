@@ -1,7 +1,7 @@
 module DailyActivities
   module Factories
-    def create_activity(activity_name: 'Activity Name', user_id: '123123')
-      create_activity = CreateActivity.call(activity_name: activity_name, user_id: user_id)
+    def create_activity(activity_name: 'Activity Name', user_id: '123123', list_id: 1)
+      create_activity = CreateActivity.call(activity_name: activity_name, user_id: user_id, list_id: list_id)
       Database.connection[:activities][id: create_activity.activity_id]
     end
 

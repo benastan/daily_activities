@@ -66,7 +66,8 @@ module DailyActivities
           :activities__activity_name,
           :activities__created_at,
           :activities__updated_at,
-          :activities__user_id
+          :activities__user_id,
+          :activities__list_id
         ]
       end
 
