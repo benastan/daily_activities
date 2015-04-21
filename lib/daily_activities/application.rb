@@ -35,15 +35,17 @@ module DailyActivities
     end
 
     get '/' do
-      if lists.count == 0
-        create_list = CreateList.call(
-          list_title: 'Daily Activities List',
-          user_id: current_user['id']
-        )
-        list_id = create_list.list_id
-      else
-        list_id = lists.first[:id]
-      end
+      list_id = (
+        if lists.count == 0
+          create_list = CreateList.call(
+            list_title: 'Daily Activities List',
+            user_id: current_user['id']
+          )
+          create_list.list_id
+        else
+          lists.first[:id]
+        end
+      )
       redirect to('/lists/%s' % list_id)
     end
 
@@ -106,6 +108,7 @@ module DailyActivities
         record_date: record_date,
         list_id: list_id
       )
+      
       if create_activity.success?
         redirect to('lists/%s?date=%s' % [list_id, record_date])
       else
