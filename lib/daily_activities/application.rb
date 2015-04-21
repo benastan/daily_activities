@@ -7,8 +7,11 @@ module DailyActivities
   autoload :CreateActivity, 'daily_activities/create_activity'
   autoload :CreateActivityRecord, 'daily_activities/create_activity_record'
   autoload :CreateActivityAndActivityRecord, 'daily_activities/create_activity_and_activity_record'
+  autoload :CreateList, 'daily_activities/create_list'
   autoload :LoadActivities, 'daily_activities/load_activities'
   autoload :LoadActivityRecords, 'daily_activities/load_activity_records'
+  autoload :LoadList, 'daily_activities/load_list'
+  autoload :LoadListAndActivities, 'daily_activities/load_list_and_activities'
   autoload :Google, 'daily_activities/google'
   autoload :SqlHelper, 'daily_activities/sql_helper'
   autoload :ChartJS, 'daily_activities/chart_js'
@@ -33,12 +36,11 @@ module DailyActivities
 
     get '/' do
       if lists.count == 0
-        list_id = Database.connection[:lists].insert(
+        create_list = CreateList.call(
           list_title: 'Daily Activities List',
-          user_id: current_user['id'],
-          created_at: DateTime.now,
-          updated_at: DateTime.now
+          user_id: current_user['id']
         )
+        list_id = create_list.list_id
       else
         list_id = lists.first[:id]
       end
@@ -52,35 +54,34 @@ module DailyActivities
     get '/lists/:list_id' do
       list_id = params[:list_id]
       current_date = params[:date] ? Date.parse(params[:date]) : Date.today
-      list = Database.connection[:lists][id: list_id, user_id: current_user['id']]
-      load_activities = LoadActivities.call(
+      
+      load_list = LoadListAndActivities.call(
         list_id: list_id,
-        date: current_date,
-        user_id: current_user['id']
+        user_id: current_user['id'],
+        date: current_date
       )
 
       haml :index, locals: {
-        list: list,
+        list: load_list.list,
         activity_name: nil,
         error: nil,
-        activities: load_activities.activities,
+        activities: load_list.activities,
         current_date: current_date
       }
     end
 
     post '/lists' do
       list_title = params[:list][:list_title]
-
-      if list_title == ''
-        @error = 'Required fields are missing'
+      create_list = CreateList.call(
+        list_title: list_title,
+        user_id: current_user['id']
+      )
+        
+      unless create_list.success?
+        @error = create_list.message
         haml :new_list
       else
-        list_id = Database.connection[:lists].insert(
-          list_title: list_title,
-          user_id: current_user['id'],
-          created_at: DateTime.now,
-          updated_at: DateTime.now
-        )
+        list_id = create_list.list_id
         redirect to('/lists/%s' % list_id)
       end
     end
@@ -108,17 +109,17 @@ module DailyActivities
       if create_activity.success?
         redirect to('lists/%s?date=%s' % [list_id, record_date])
       else
-        list = Database.connection[:lists][id: list_id, user_id: current_user['id']]
         current_date = Date.today
-        load_activities = LoadActivities.call(
-          date: current_date,
-          user_id: current_user['id']
+        load_list_and_activities = LoadListAndActivities.call(
+          list_id: list_id,
+          user_id: current_user['id'],
+          date: current_date
         )
         haml :index, locals: {
-          list: list,
+          list: load_list_and_activities.list,
           activity_name: activity_name,
           error: create_activity.message,
-          activities: load_activities.activities,
+          activities: load_list_and_activities.activities,
           current_date: current_date
         }
       end
