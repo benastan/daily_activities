@@ -3,19 +3,7 @@ require 'interactor'
 require 'faraday'
 require 'psych'
 
-module DailyActivities
-  autoload :CreateActivity, 'daily_activities/create_activity'
-  autoload :CreateActivityRecord, 'daily_activities/create_activity_record'
-  autoload :CreateActivityAndActivityRecord, 'daily_activities/create_activity_and_activity_record'
-  autoload :CreateList, 'daily_activities/create_list'
-  autoload :LoadActivities, 'daily_activities/load_activities'
-  autoload :LoadActivityRecords, 'daily_activities/load_activity_records'
-  autoload :LoadList, 'daily_activities/load_list'
-  autoload :LoadListAndActivities, 'daily_activities/load_list_and_activities'
-  autoload :Google, 'daily_activities/google'
-  autoload :SqlHelper, 'daily_activities/sql_helper'
-  autoload :ChartJS, 'daily_activities/chart_js'
-
+module DailyActivities  
   class Application < Sinatra::Base
     before do
       unless current_user || request.path == '/oauth/callback'
@@ -85,7 +73,7 @@ module DailyActivities
         @alert = create_list.message
         haml :new_list
       else
-        session[:success] = 'List "%s" created!' % list_attributes[:list_title]
+        session[:success] = 'List "%s" has been created!' % list_attributes[:list_title]
         list_id = create_list.list_id
         redirect to('/lists/%s' % list_id)
       end
@@ -117,44 +105,40 @@ module DailyActivities
     post '/lists/:list_id' do
       list_id = params[:list_id]
       list_title = params[:list][:list_title]
-      if list_title == ''
-        load_list = LoadList.call(
-          user_id: current_user['id'],
-          list_id: list_id
-        )
-        @list = load_list.list
-        @error = true
-        @alert = 'Required fields are missing'
-        @active_tab = 'edit'
-        haml :edit_list
-      else
-        lists = database[:lists].where(user_id: current_user['id'], id: list_id)
-        lists.update(
-          list_title: list_title,
-          updated_at: DateTime.now
-        )
+      update_list = ValidateAndUpdateList.call(
+        user_id: current_user['id'],
+        list_id: list_id,
+        list_title: list_title
+      )
+
+      if update_list.success?
         session[:success] = 'List "%s" has been updated!' % list_title
         redirect to('/lists/%s' % list_id)
+      else
+        @list = update_list.list
+        @error = true
+        @alert = update_list.message
+        @active_tab = 'edit'
+        haml :edit_list
       end
     end
 
     delete '/lists/:list_id' do
       list_id = params[:list_id]
       list_title = params[:list][:list_title]
-      load_list = LoadList.call(
+      safely_delete_list = SafelyDeleteList.call(
         user_id: current_user['id'],
-        list_id: list_id
+        list_id: list_id,
+        list_title: list_title
       )
-      if list_title != load_list.list[:list_title]
-        @list = load_list.list
-        @alert = 'Please confirm the name of the list you are deleting.'
-        @active_tab = 'edit'
-        haml :edit_list
-      else
-        lists = database[:lists].where(user_id: current_user['id'], id: list_id)
-        lists.delete
+      if safely_delete_list.success?
         session[:success] = 'List "%s" has been deleted.' % list_title
         redirect to('/')
+      else
+        @list = safely_delete_list.list
+        @alert = safely_delete_list.message
+        @active_tab = 'edit'
+        haml :edit_list
       end
     end
 

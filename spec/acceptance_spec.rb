@@ -122,7 +122,7 @@ describe 'daily activities', js: true do
 
     fill_in 'Title', with: 'Grocery List'
     click_on 'Create List'
-    expect(page).to have_content 'List "Grocery List" created!'
+    expect(page).to have_content 'List "Grocery List" has been created!'
     expect(page).to have_content 'Grocery List'
     fill_in 'New Activity', with: 'Broccoli'
     click_on 'Create Activity'
