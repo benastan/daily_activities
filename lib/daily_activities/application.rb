@@ -85,7 +85,7 @@ module DailyActivities
         @alert = create_list.message
         haml :new_list
       else
-        session[:success] = 'List "Grocery List" created!'
+        session[:success] = 'List "%s" created!' % list_attributes[:list_title]
         list_id = create_list.list_id
         redirect to('/lists/%s' % list_id)
       end
@@ -133,6 +133,7 @@ module DailyActivities
           list_title: list_title,
           updated_at: DateTime.now
         )
+        session[:success] = 'List "%s" has been updated!' % list_title
         redirect to('/lists/%s' % list_id)
       end
     end
@@ -152,7 +153,7 @@ module DailyActivities
       else
         lists = database[:lists].where(user_id: current_user['id'], id: list_id)
         lists.delete
-        session[:success] = 'List "Groceries" has been deleted.'
+        session[:success] = 'List "%s" has been deleted.' % list_title
         redirect to('/')
       end
     end
