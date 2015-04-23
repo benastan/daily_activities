@@ -50,6 +50,7 @@ module DailyActivities
     end
 
     get '/lists/new' do
+      @list = {}
       haml :new_list
     end
 
@@ -65,7 +66,6 @@ module DailyActivities
 
       @list = load_list.list
       @activity_name = nil
-      @error = nil
       @activities = load_list.activities
       @current_date = current_date
       @active_tab = 'record'
@@ -73,16 +73,19 @@ module DailyActivities
     end
 
     post '/lists' do
-      list_title = params[:list][:list_title]
+      list_attributes = params[:list]
       create_list = CreateList.call(
-        list_title: list_title,
+        list_title: list_attributes[:list_title],
         user_id: current_user['id']
       )
         
       unless create_list.success?
-        @error = create_list.message
+        @list = list_attributes
+        @error = true
+        @alert = create_list.message
         haml :new_list
       else
+        session[:success] = 'List "Grocery List" created!'
         list_id = create_list.list_id
         redirect to('/lists/%s' % list_id)
       end
@@ -97,6 +100,61 @@ module DailyActivities
       @list = load_list_and_activities.list
       @data = ChartJS::PieChart.new(load_list_and_activities.activities)
       haml :data
+    end
+
+    get '/lists/:list_id/edit' do
+      list_id = params[:list_id]
+      load_list = LoadList.call(
+        user_id: current_user['id'],
+        list_id: list_id
+      )
+      @list = load_list.list
+      @active_tab = 'edit'
+      haml :edit_list
+    end
+
+
+    post '/lists/:list_id' do
+      list_id = params[:list_id]
+      list_title = params[:list][:list_title]
+      if list_title == ''
+        load_list = LoadList.call(
+          user_id: current_user['id'],
+          list_id: list_id
+        )
+        @list = load_list.list
+        @error = true
+        @alert = 'Required fields are missing'
+        @active_tab = 'edit'
+        haml :edit_list
+      else
+        lists = database[:lists].where(user_id: current_user['id'], id: list_id)
+        lists.update(
+          list_title: list_title,
+          updated_at: DateTime.now
+        )
+        redirect to('/lists/%s' % list_id)
+      end
+    end
+
+    delete '/lists/:list_id' do
+      list_id = params[:list_id]
+      list_title = params[:list][:list_title]
+      load_list = LoadList.call(
+        user_id: current_user['id'],
+        list_id: list_id
+      )
+      if list_title != load_list.list[:list_title]
+        @list = load_list.list
+        @alert = 'Please confirm the name of the list you are deleting.'
+        @active_tab = 'edit'
+        haml :edit_list
+      else
+        lists = database[:lists].where(user_id: current_user['id'], id: list_id)
+        lists.delete
+        session[:success] = 'List "Groceries" has been deleted.'
+        redirect to('/')
+      end
     end
 
     post '/lists/:list_id/activities' do
@@ -121,7 +179,8 @@ module DailyActivities
         )
         @list = load_list_and_activities.list
         @activity_name = activity_name
-        @error = create_activity.message
+        @error = true
+        @alert = create_activity.message
         @activities = load_list_and_activities.activities
         @current_date = current_date
         @active_tab = 'record'
@@ -187,6 +246,7 @@ module DailyActivities
     end
 
     configure do
+      use Rack::MethodOverride
       enable :sessions
       enable :logging
       file = File.new("#{settings.root}/../../log/#{settings.environment}.log", 'a+')

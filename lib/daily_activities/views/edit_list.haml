@@ -1,0 +1,22 @@
+%h3 Edit List
+
+%hr
+%form{ action: '/lists/%s' % @list[:id], method: 'post' }
+  = haml :list_fields
+
+  .form-group
+    %button.btn.btn-default{ type: "submit" } Update List
+
+%hr
+%br/
+
+%h3 Delete List
+%hr
+
+%form{ action: '/lists/%s' % @list[:id], method: 'post' }
+  .form-group
+    %label.control-label{ for: 'list_confirm_list_title' } Confirm List Name
+    %input.form-control{ type: 'text', id: 'list_confirm_list_title', name: 'list[list_title]' }
+
+  %input{ type: 'hidden', name: '_method', value: 'delete' }
+  %button.btn.btn-danger{ type: 'submit' } Delete List

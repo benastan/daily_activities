@@ -4,8 +4,7 @@ module DailyActivities
 
     def call
       list_title = context[:list_title]
-      user_id = context[:user_id]
-      
+      user_id = context[:user_id]      
 
       if list_title == ''
         context.fail!(message: 'Required fields are missing')

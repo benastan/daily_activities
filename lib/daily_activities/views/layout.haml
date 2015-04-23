@@ -42,10 +42,25 @@
           
           %li{ role: "presentation", class: "#{'active' if @active_tab == 'visualize'}" }
             %a{ href: '/lists/%s/visualize' % @list[:id] } Visualize
+          
+          %li{ role: "presentation", class: "#{'active' if @active_tab == 'edit'}" }
+            %a{ href: '/lists/%s/edit' % @list[:id] } Edit
 
         %br
 
+      - if @alert
+        .alert.alert-danger{ role: 'alert' }= @alert
+        
+      - if session[:alert]
+        .alert.alert-danger{ role: 'alert' }= session.delete(:alert)
+        
+      - if session[:success]
+        .alert.alert-success{ role: 'alert' }= session.delete(:success)
+
       = yield
+      %br
+      %br
+      %br
 
     %script{ type: 'text/javascript', src: '/jquery.js'}
     %script{ type: 'text/javascript', src: 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js'}

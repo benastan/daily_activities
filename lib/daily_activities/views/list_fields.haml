@@ -1,0 +1,3 @@
+.form-group{ class: "#{'has-error' if @error}"}
+  %label.control-label{ for: 'list_list_title' } Title
+  %input.form-control{ type: 'text', id: 'list_list_title', name: 'list[list_title]', value: @list[:list_title] }

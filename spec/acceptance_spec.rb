@@ -122,10 +122,33 @@ describe 'daily activities', js: true do
 
     fill_in 'Title', with: 'Grocery List'
     click_on 'Create List'
+    expect(page).to have_content 'List "Grocery List" created!'
     expect(page).to have_content 'Grocery List'
     fill_in 'New Activity', with: 'Broccoli'
     click_on 'Create Activity'
     expect(find_field('Broccoli')).to be_checked
+
+    click_on 'Edit'
+    fill_in 'Title', with: ''
+    click_on 'Update List'
+    expect(page).to have_content 'Required fields are missing'
+
+    fill_in 'Title', with: 'Groceries'
+    click_on 'Update List'
+
+    expect(page).to have_content 'Groceries'
+
+    click_on 'Edit'
+    click_on 'Delete List'
+    expect(page).to have_content 'Please confirm the name of the list you are deleting.'
+
+    fill_in 'Confirm List Name', with: 'Flarnin Terb'
+    click_on 'Delete List'
+    expect(page).to have_content 'Please confirm the name of the list you are deleting.'
+
+    fill_in 'Confirm List Name', with: 'Groceries'
+    click_on 'Delete List'
+    expect(page).to have_content 'List "Groceries" has been deleted.'
 
     visit '/'
     expect(page).to_not have_content 'Broccoli'
