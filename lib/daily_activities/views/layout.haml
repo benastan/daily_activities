@@ -30,9 +30,12 @@
                   %a(href="/lists/new")
                     %span.glyphicon.glyphicon-plus
                     New List
-            
+
     .container
       - if @list
+        %h1= @list[:list_title]
+        %br
+
         %ul.nav.nav-tabs
           %li{ role: "presentation", class: "#{'active' if @active_tab == 'record'}" }
             %a{ href: '/lists/%s' % @list[:id] } Record

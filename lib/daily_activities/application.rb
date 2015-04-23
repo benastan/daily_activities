@@ -135,31 +135,26 @@ module DailyActivities
     end
 
     post '/activities/:activity_id' do
-      database[:activities].where(id: params[:activity_id]).update(
-        activity_name: params[:activity][:activity_name]
-      )
-
+      activity_name = params[:activity][:activity_name]
+      activities = database[:activities].where(id: params[:activity_id])
+      activities.update(activity_name: activity_name)
       redirect to('/')
     end
 
     post '/activities/:activity_id/records' do
-      activity_id = params[:activity_id]
-      record = params[:activity_record][:record] == 'true'
-      record_date = params[:activity_record][:record_date]
-
-      if record
-        CreateActivityRecord.call(
-          activity_id: activity_id,
-          record_date: record_date,
+      attributes = {
+        activity_id: params[:activity_id],
+        record_date: params[:activity_record][:record_date]
+      }
+      
+      if params[:activity_record][:record] == 'true'
+        attributes.merge(
           created_at: DateTime.now,
           updated_at: DateTime.now
         )
+        CreateActivityRecord.call(attributes)
       else
-        dataset = database[:activity_records].where(
-          record_date: record_date,
-          activity_id: activity_id
-        )
-
+        dataset = database[:activity_records].where(attributes)
         dataset.delete
       end
 
