@@ -130,12 +130,12 @@ module DailyActivities
     end
 
     get '/activities/:activity_id/edit' do
-      activity = Database.connection[:activities][id: params[:activity_id]]
-      haml :edit, locals: { activity: activity, error: nil }
+      @activity = database[:activities][id: params[:activity_id]]
+      haml :edit
     end
 
     post '/activities/:activity_id' do
-      Database.connection[:activities].where(id: params[:activity_id]).update(
+      database[:activities].where(id: params[:activity_id]).update(
         activity_name: params[:activity][:activity_name]
       )
 
@@ -155,7 +155,7 @@ module DailyActivities
           updated_at: DateTime.now
         )
       else
-        dataset = Database.connection[:activity_records].where(
+        dataset = database[:activity_records].where(
           record_date: record_date,
           activity_id: activity_id
         )
@@ -183,7 +183,11 @@ module DailyActivities
       end
 
       def lists
-        Database.connection[:lists].where(user_id: current_user['id'])
+        database[:lists].where(user_id: current_user['id'])
+      end
+
+      def database
+        Database.connection
       end
     end
 
