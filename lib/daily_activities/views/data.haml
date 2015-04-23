@@ -3,12 +3,12 @@
     %h2{ style: 'text-align: center' } Activity Breakdown
     %br/
     %div
-      %canvas{ data: { pie: { chart: JSON.dump(data) } } }
+      %canvas{ data: { pie: { chart: JSON.dump(@data) } } }
     %br/
 
   .col-md-4{ style: 'max-height: 290px; overflow-y: auto'}
     %ul.list-group
-      - data.each do |activity|
+      - @data.each do |activity|
         %li.list-group-item  
           .badge= activity[:value]
           = activity[:label]

@@ -63,13 +63,13 @@ module DailyActivities
         date: current_date
       )
 
-      haml :index, locals: {
-        list: load_list.list,
-        activity_name: nil,
-        error: nil,
-        activities: load_list.activities,
-        current_date: current_date
-      }
+      @list = load_list.list
+      @activity_name = nil
+      @error = nil
+      @activities = load_list.activities
+      @current_date = current_date
+      @active_tab = 'record'
+      haml :index
     end
 
     post '/lists' do
@@ -88,14 +88,15 @@ module DailyActivities
       end
     end
 
-    get '/data' do
-      context = { user_id: current_user['id'] }
+    get '/lists/:list_id/visualize' do
+      context = { user_id: current_user['id'], list_id: params[:list_id] }
       context[:date] = params[:date] if params[:date]
-      load_activities = LoadActivities.call(context)
+      load_list_and_activities = LoadListAndActivities.call(context)
 
-      haml :data, locals: {
-        data: ChartJS::PieChart.new(load_activities.activities)
-      }
+      @active_tab = 'visualize'
+      @list = load_list_and_activities.list
+      @data = ChartJS::PieChart.new(load_list_and_activities.activities)
+      haml :data
     end
 
     post '/lists/:list_id/activities' do
@@ -118,23 +119,14 @@ module DailyActivities
           user_id: current_user['id'],
           date: current_date
         )
-        haml :index, locals: {
-          list: load_list_and_activities.list,
-          activity_name: activity_name,
-          error: create_activity.message,
-          activities: load_list_and_activities.activities,
-          current_date: current_date
-        }
+        @list = load_list_and_activities.list
+        @activity_name = activity_name
+        @error = create_activity.message
+        @activities = load_list_and_activities.activities
+        @current_date = current_date
+        @active_tab = 'record'
+        haml :index
       end
-    end
-
-    get '/activities' do
-      date = params[:date]
-      load_activity_records = LoadActivityRecords.call(record_date: date)
-      haml :activities, locals: {
-        date: date,
-        activity_records: load_activity_records.activity_records
-      }
     end
 
     get '/activities/:activity_id/edit' do

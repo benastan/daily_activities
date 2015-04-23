@@ -3,27 +3,27 @@
     text-decoration: line-through;
   }
 
-%h1= list[:list_title]
+%h1= @list[:list_title]
 
 .page-header
-  %em= current_date.strftime('%A, %B %d, %Y')
+  %em= @current_date.strftime('%A, %B %d, %Y')
 
 .panel
-  %form{ action: '/lists/%s/activities' % list[:id], method: 'post' }
-    .form-group{ class: "#{'has-error' if error}"}
+  %form{ action: '/lists/%s/activities' % @list[:id], method: 'post' }
+    .form-group{ class: "#{'has-error' if @error}"}
       %label.control-label{ for: 'activity_activity_name' } New Activity
-      %input.form-control{ type: 'text', id: 'activity_activity_name', name: 'activity[activity_name]', value: activity_name, autofocus: '1' }
-      %input{ type: 'hidden', name: 'activity_record[record_date]', value: current_date.to_s }
+      %input.form-control{ type: 'text', id: 'activity_activity_name', name: 'activity[activity_name]', value: @activity_name, autofocus: '1' }
+      %input{ type: 'hidden', name: 'activity_record[record_date]', value: @current_date.to_s }
 
-      - if error
+      - if @error
         %label.control-label
-          %small= error
+          %small= @error
 
     .form-group
       %button.btn.btn-default{ type: "submit" } Create Activity
 
 %ul.list-group
-  - activities.each do |activity|
+  - @activities.each do |activity|
     %li.list-group-item
       %form#new_activity_record{ action: "/activities/#{activity[:id]}/records", method: 'post', data: { remote: '' } }
         %div.checkbox{ style: 'margin: 0' }
@@ -35,6 +35,6 @@
               %input{ type: 'checkbox', id: "activity_record_record_true_#{activity[:id]}", name: 'activity_record[record]', value: 'true' }
             %span= activity[:activity_name]
             %a{ href: "/activities/#{activity[:id]}/edit" } edit
-          %input{ type: 'hidden', name: 'activity_record[record_date]', value: current_date.to_s }
+          %input{ type: 'hidden', name: 'activity_record[record_date]', value: @current_date.to_s }
 
-= haml :date_pagination, locals: { date: current_date }
+= haml :date_pagination, locals: { date: @current_date }
